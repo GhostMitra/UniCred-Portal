@@ -1,0 +1,6 @@
+name = "unicred-portal-frontend"
+compatibility_date = "2025-07-27"
+main = "./src/index.ts"
+[assets]
+  directory = "./dist"  
+  not_found_handling = "single-page-application"
