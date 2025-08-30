@@ -83,9 +83,92 @@ export async function revokeCredential(credentialId: string, reason: string) {
 }
 
 export async function verifyCredentialByHash(vcHash: string) {
-  const cred = await prisma.credential.findUnique({ where: { vcHash } });
+  const cred = await prisma.credential.findUnique({ 
+    where: { vcHash },
+    include: {
+      student: true
+    }
+  });
   if (!cred) return { exists: false, method: 'unknown' as const };
-  return { exists: true, method: 'database' as const, credential: cred };
+  
+  // Include student name for display
+  const credentialWithStudentName = {
+    ...cred,
+    studentName: cred.student?.name || 'Unknown Student'
+  };
+  
+  return { exists: true, method: 'database' as const, credential: credentialWithStudentName };
+}
+
+export async function searchCredentials(query: string) {
+  // Try different search methods
+  
+  // 1. Search by credential ID
+  let cred = await prisma.credential.findUnique({ 
+    where: { id: query },
+    include: { student: true }
+  });
+  
+  if (cred) {
+    return { 
+      exists: true, 
+      method: 'credential_id' as const, 
+      credential: { ...cred, studentName: cred.student?.name || 'Unknown Student' }
+    };
+  }
+  
+  // 2. Search by vcHash
+  cred = await prisma.credential.findUnique({ 
+    where: { vcHash: query },
+    include: { student: true }
+  });
+  
+  if (cred) {
+    return { 
+      exists: true, 
+      method: 'hash' as const, 
+      credential: { ...cred, studentName: cred.student?.name || 'Unknown Student' }
+    };
+  }
+  
+  // 3. Search by student name (partial match)
+  const credsWithStudents = await prisma.credential.findMany({
+    include: { student: true },
+    where: {
+      student: {
+        name: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      }
+    }
+  });
+  
+  if (credsWithStudents.length > 0) {
+    const firstCred = credsWithStudents[0];
+    return { 
+      exists: true, 
+      method: 'student_name' as const, 
+      credential: { ...firstCred, studentName: firstCred.student?.name || 'Unknown Student' },
+      additionalResults: credsWithStudents.length - 1
+    };
+  }
+  
+  // 4. Search by student ID
+  cred = await prisma.credential.findFirst({
+    where: { studentId: query },
+    include: { student: true }
+  });
+  
+  if (cred) {
+    return { 
+      exists: true, 
+      method: 'student_id' as const, 
+      credential: { ...cred, studentName: cred.student?.name || 'Unknown Student' }
+    };
+  }
+  
+  return { exists: false, method: 'unknown' as const };
 }
 
 export async function anchorCredential(credentialId: string, _chainInfo: { network: string }) {

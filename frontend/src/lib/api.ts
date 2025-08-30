@@ -43,6 +43,9 @@ export const api = {
   verifyByHash(hash: string) {
     return http(`/api/credentials/verify/${hash}`);
   },
+  searchCredentials(query: string) {
+    return http(`/api/credentials/search/${encodeURIComponent(query)}`);
+  },
 
   // Students
   getStudentCredentials(studentId: string) {

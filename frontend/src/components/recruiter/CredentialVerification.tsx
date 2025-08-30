@@ -19,8 +19,42 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
     if (!searchQuery.trim()) return;
     setIsVerifying(true);
     try {
-      const result = await api.verifyByHash(searchQuery.trim());
+      // Use enhanced search that can handle different query types
+      const result = await api.searchCredentials(searchQuery.trim());
       if (result.exists) {
+        // Determine verification status based on actual database values
+        let verificationStatus = 'pending';
+        let confidence = 50.0;
+        let statusMessage = 'Pending Verification';
+        
+        if (result.credential?.status === 'verified') {
+          if (result.credential?.recruiterApproved && result.credential?.studentAccepted) {
+            verificationStatus = 'authentic';
+            confidence = 99.0;
+            statusMessage = 'Fully Verified';
+          } else if (result.credential?.recruiterApproved && !result.credential?.studentAccepted) {
+            verificationStatus = 'pending_student';
+            confidence = 75.0;
+            statusMessage = 'Pending Student Acceptance';
+          } else if (!result.credential?.recruiterApproved && result.credential?.studentAccepted) {
+            verificationStatus = 'pending_recruiter';
+            confidence = 75.0;
+            statusMessage = 'Pending Recruiter Approval';
+          } else {
+            verificationStatus = 'pending_both';
+            confidence = 50.0;
+            statusMessage = 'Pending Both Approvals';
+          }
+        } else if (result.credential?.status === 'pending') {
+          verificationStatus = 'pending_issuance';
+          confidence = 25.0;
+          statusMessage = 'Pending Issuance';
+        } else if (result.credential?.status === 'revoked') {
+          verificationStatus = 'revoked';
+          confidence = 0.0;
+          statusMessage = 'Credential Revoked';
+        }
+
         setVerificationResult({
           found: true,
           candidate: {
@@ -34,13 +68,18 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
             institution: result.credential?.institution,
             dateIssued: new Date(result.credential?.dateIssued).toISOString().slice(0,10),
             status: result.credential?.status,
-            credentialId: result.credential?.id
+            credentialId: result.credential?.id,
+            recruiterApproved: result.credential?.recruiterApproved,
+            studentAccepted: result.credential?.studentAccepted
           },
           verification: {
-            status: 'authentic',
+            status: verificationStatus,
+            statusMessage: statusMessage,
             verifiedAt: new Date().toISOString(),
             blockchainHash: (result.anchor?.txHash || result.anchor?.signature),
-            confidence: 99.0
+            confidence: confidence,
+            searchMethod: result.method,
+            additionalResults: result.additionalResults
           },
         });
       } else {
@@ -224,11 +263,15 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
                 <div className={`p-4 rounded-full ${
                   verificationResult.verification.status === 'authentic' 
                     ? 'bg-green-500/20' 
-                    : 'bg-red-500/20'
+                    : verificationResult.verification.status === 'failed' || verificationResult.verification.status === 'revoked'
+                    ? 'bg-red-500/20'
+                    : 'bg-yellow-500/20'
                 }`}>
                   {verificationResult.verification.status === 'authentic' ? 
                     <CheckCircle className="w-8 h-8 text-green-400" /> :
-                    <XCircle className="w-8 h-8 text-red-400" />
+                    verificationResult.verification.status === 'failed' || verificationResult.verification.status === 'revoked' ?
+                    <XCircle className="w-8 h-8 text-red-400" /> :
+                    <Clock className="w-8 h-8 text-yellow-400" />
                   }
                 </div>
               </div>
@@ -236,15 +279,30 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
               <div className={`text-center p-4 rounded-lg ${
                 verificationResult.verification.status === 'authentic' 
                   ? 'bg-green-500/20 border border-green-500/30' 
-                  : 'bg-red-500/20 border border-red-500/30'
+                  : verificationResult.verification.status === 'failed' || verificationResult.verification.status === 'revoked'
+                  ? 'bg-red-500/20 border border-red-500/30'
+                  : 'bg-yellow-500/20 border border-yellow-500/30'
               }`}>
                 <h3 className={`text-lg font-semibold ${
-                  verificationResult.verification.status === 'authentic' ? 'text-green-300' : 'text-red-300'
+                  verificationResult.verification.status === 'authentic' 
+                    ? 'text-green-300' 
+                    : verificationResult.verification.status === 'failed' || verificationResult.verification.status === 'revoked'
+                    ? 'text-red-300'
+                    : 'text-yellow-300'
                 }`}>
-                  {verificationResult.verification.status === 'authentic' ? 'Credential Verified' : 'Verification Failed'}
+                  {verificationResult.verification.statusMessage || 
+                   (verificationResult.verification.status === 'authentic' ? 'Credential Verified' : 'Verification Failed')}
                 </h3>
                 <p className="text-sm mt-1 text-slate-300">
                   Confidence: {verificationResult.verification.confidence}%
+                  {verificationResult.verification.searchMethod && (
+                    <span className="block text-xs mt-1 text-slate-400">
+                      Found by: {verificationResult.verification.searchMethod.replace('_', ' ')}
+                      {verificationResult.verification.additionalResults > 0 && 
+                        ` (+${verificationResult.verification.additionalResults} more credentials for this student)`
+                      }
+                    </span>
+                  )}
                 </p>
               </div>
 
@@ -269,8 +327,20 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
                     <span className="text-white">{verificationResult.credential.dateIssued}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">GPA:</span>
-                    <span className="text-white">{verificationResult.credential.gpa}</span>
+                    <span className="text-slate-400">Status:</span>
+                    <span className="text-white capitalize">{verificationResult.credential.status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Recruiter Approved:</span>
+                    <span className={`${verificationResult.credential.recruiterApproved ? 'text-green-400' : 'text-red-400'}`}>
+                      {verificationResult.credential.recruiterApproved ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Student Accepted:</span>
+                    <span className={`${verificationResult.credential.studentAccepted ? 'text-green-400' : 'text-red-400'}`}>
+                      {verificationResult.credential.studentAccepted ? 'Yes' : 'No'}
+                    </span>
                   </div>
                 </div>
 
@@ -284,13 +354,15 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Blockchain View
                   </button>
-                  <button
-                    onClick={handleApprove}
-                    disabled={isApproving || verificationResult?.credential?.recruiterApproved}
-                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center"
-                  >
-                    {verificationResult?.credential?.recruiterApproved ? 'Approved' : (isApproving ? 'Approving...' : 'Approve Visibility')}
-                  </button>
+                  {verificationResult?.verification?.status !== 'failed' && verificationResult?.verification?.status !== 'revoked' && (
+                    <button
+                      onClick={handleApprove}
+                      disabled={isApproving || verificationResult?.credential?.recruiterApproved}
+                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center"
+                    >
+                      {verificationResult?.credential?.recruiterApproved ? 'Already Approved' : (isApproving ? 'Approving...' : 'Approve Visibility')}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
