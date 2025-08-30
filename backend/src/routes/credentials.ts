@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { issueCredential, revokeCredential, anchorCredential, verifyCredentialByHash } from '../services/credential.service';
+import { issueCredential, revokeCredential, anchorCredential, verifyCredentialByHash, searchCredentials } from '../services/credential.service';
 import { prisma } from '../db/prisma';
 
 const router = Router();
@@ -48,6 +48,16 @@ router.post('/:id/revoke', async (req, res) => {
 router.get('/verify/:hash', async (req, res) => {
   try {
     const result = await verifyCredentialByHash(req.params.hash);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Enhanced search for credentials by various criteria
+router.get('/search/:query', async (req, res) => {
+  try {
+    const result = await searchCredentials(req.params.query);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
