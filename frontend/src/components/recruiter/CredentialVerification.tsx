@@ -16,11 +16,27 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
   const [isApproving, setIsApproving] = useState(false);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    const query = searchQuery.trim();
+    if (!query) return;
+    
+    // Frontend validation - require minimum length
+    if (query.length < 15) {
+      setVerificationResult({
+        found: false,
+        verification: { 
+          status: 'failed', 
+          confidence: 0,
+          statusMessage: 'Please enter a complete credential ID or hash (minimum 15 characters)',
+          searchMethod: 'invalid_query'
+        },
+      });
+      return;
+    }
+    
     setIsVerifying(true);
     try {
-      // Use enhanced search that can handle different query types
-      const result = await api.searchCredentials(searchQuery.trim());
+      // Use enhanced search that only does exact matches
+      const result = await api.searchCredentials(query);
       if (result.exists) {
         // Determine verification status based on actual database values
         let verificationStatus = 'pending';
@@ -85,11 +101,23 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
       } else {
         setVerificationResult({
           found: false,
-          verification: { status: 'failed', confidence: 0 },
+          verification: { 
+            status: 'failed', 
+            confidence: 0,
+            statusMessage: result.error || 'Credential not found',
+            searchMethod: result.method
+          },
         });
       }
     } catch (e) {
-      setVerificationResult({ found: false, verification: { status: 'failed', confidence: 0 } });
+      setVerificationResult({ 
+        found: false, 
+        verification: { 
+          status: 'failed', 
+          confidence: 0,
+          statusMessage: 'Search failed - please check your connection'
+        } 
+      });
     } finally {
       setIsVerifying(false);
     }
@@ -178,7 +206,7 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
-                  Enter Credential ID, Student ID, or Name
+                  Enter Full Credential ID or Hash
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -186,15 +214,44 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="e.g., TECH-CS-2024-001 or John Smith"
+                    placeholder="e.g., CRED_BACHELOR_CS_STU001 or hash_bachelor_cs_001"
                     className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   />
                 </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  ⚠️ Enter the complete credential ID or blockchain hash for verification. Partial matches are not supported.
+                </p>
+                <div className="mt-3 p-3 bg-slate-800/50 rounded-lg">
+                  <p className="text-xs text-slate-400 mb-2">Test with these examples:</p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-300">Fully Verified:</span>
+                      <code className="text-blue-300 bg-slate-700/50 px-2 py-1 rounded cursor-pointer hover:bg-slate-700/70" 
+                            onClick={() => setSearchQuery('CRED_BACHELOR_CS_STU001')}>
+                        CRED_BACHELOR_CS_STU001
+                      </code>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-300">Pending Recruiter:</span>
+                      <code className="text-yellow-300 bg-slate-700/50 px-2 py-1 rounded cursor-pointer hover:bg-slate-700/70" 
+                            onClick={() => setSearchQuery('CRED_CERT_CYBER_STU001')}>
+                        CRED_CERT_CYBER_STU001
+                      </code>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-300">By Hash:</span>
+                      <code className="text-green-300 bg-slate-700/50 px-2 py-1 rounded cursor-pointer hover:bg-slate-700/70" 
+                            onClick={() => setSearchQuery('hash_bachelor_cs_001')}>
+                        hash_bachelor_cs_001
+                      </code>
+                    </div>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={handleSearch}
-                disabled={isVerifying || !searchQuery.trim()}
+                disabled={isVerifying || !searchQuery.trim() || searchQuery.trim().length < 15}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isVerifying ? (
