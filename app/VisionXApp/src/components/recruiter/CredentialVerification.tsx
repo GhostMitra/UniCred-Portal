@@ -17,7 +17,7 @@ type CredentialVerificationRouteProp = RouteProp<{ Verification: { user: User } 
 
 const CredentialVerification: React.FC = () => {
   const route = useRoute<CredentialVerificationRouteProp>();
-  const { user } = route.params;
+  const { user } = route.params || {};
 
   // Debug logging
   console.log('CredentialVerification - Route params:', route.params);
@@ -29,8 +29,12 @@ const CredentialVerification: React.FC = () => {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Error</Text>
-          <Text style={styles.subtitle}>User information not found</Text>
+          <Text style={styles.title}>Credential Verification</Text>
+          <Text style={styles.subtitle}>Please ensure you are logged in as a recruiter</Text>
+        </View>
+        <View style={styles.searchSection}>
+          <Text style={styles.sectionTitle}>Authentication Required</Text>
+          <Text style={styles.subtitle}>You need to be logged in to access this feature.</Text>
         </View>
       </View>
     );
@@ -202,11 +206,12 @@ const CredentialVerification: React.FC = () => {
             <Ionicons name="search" size={20} color="#64748b" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Enter credential hash or ID..."
+              placeholder="CRED_BACHELOR_CS_STU001"
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor="#64748b"
               multiline
+              textAlignVertical="top"
             />
           </View>
           
@@ -312,7 +317,8 @@ const CredentialVerification: React.FC = () => {
               </TouchableOpacity>
             </View>
             
-            {verificationResult ? (
+            <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
+              {verificationResult ? (
               verificationResult.found ? (
                 <View style={styles.resultContent}>
                   {/* Candidate Info */}
@@ -418,7 +424,8 @@ const CredentialVerification: React.FC = () => {
                   </Text>
                 </View>
               </View>
-            )}
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -499,21 +506,26 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: '#1e293b',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   searchIcon: {
     marginRight: 12,
+    marginTop: 2,
   },
   searchInput: {
     flex: 1,
     color: '#ffffff',
     fontSize: 16,
     minHeight: 40,
+    maxHeight: 120,
+    textAlignVertical: 'top',
   },
   verifyButton: {
     flexDirection: 'row',
@@ -599,6 +611,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   historyHeader: {
     flexDirection: 'row',
@@ -648,6 +662,9 @@ const styles = StyleSheet.create({
     width: '90%',
     maxHeight: '80%',
   },
+  modalScrollView: {
+    flex: 1,
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -663,7 +680,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resultSection: {
-    marginBottom: 20,
+    marginBottom: 24,
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   resultSectionTitle: {
     fontSize: 16,
@@ -674,13 +696,15 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    paddingVertical: 4,
   },
   infoLabel: {
     fontSize: 14,
     color: '#94a3b8',
     fontWeight: '500',
+    minWidth: 80,
   },
   infoValue: {
     fontSize: 14,
@@ -688,6 +712,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     marginLeft: 16,
+    flexWrap: 'wrap',
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -703,7 +728,10 @@ const styles = StyleSheet.create({
   resultActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
   },
   actionButton: {
     flexDirection: 'row',

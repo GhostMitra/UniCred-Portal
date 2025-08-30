@@ -26,6 +26,15 @@ export interface Student {
   email: string;
   credentials: Credential[];
   status: 'active' | 'graduated' | 'inactive';
+  studentId: string;
+  program: string;
+  enrollmentDate: string;
+  gpa: number;
+  creditsCompleted: number;
+  totalCredits: number;
+  advisor: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface VerificationResult {
@@ -57,6 +66,15 @@ export interface NewCredential {
   studentId: string;
   studentName: string;
   graduationDate: string;
+}
+
+export interface CreateCredentialData {
+  title: string;
+  type: 'bachelor' | 'master' | 'certificate' | 'diploma';
+  institution: string;
+  dateIssued: string;
+  studentId?: string;
+  studentName?: string;
 }
 
 export interface SignupData {

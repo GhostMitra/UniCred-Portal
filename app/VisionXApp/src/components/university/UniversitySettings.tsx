@@ -16,6 +16,30 @@ import { User } from '../../types';
 
 type UniversitySettingsRouteProp = RouteProp<{ Settings: { user: User; onLogout: () => void } }, 'Settings'>;
 
+interface BaseSettingsItem {
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+interface ButtonSettingsItem extends BaseSettingsItem {
+  onPress: () => void;
+  showArrow: boolean;
+  isSwitch?: never;
+  switchValue?: never;
+  onSwitchChange?: never;
+}
+
+interface SwitchSettingsItem extends BaseSettingsItem {
+  isSwitch: true;
+  switchValue: boolean;
+  onSwitchChange: React.Dispatch<React.SetStateAction<boolean>>;
+  onPress?: never;
+  showArrow?: never;
+}
+
+type UniversitySettingsItem = ButtonSettingsItem | SwitchSettingsItem;
+
 const UniversitySettings: React.FC = () => {
   const route = useRoute<UniversitySettingsRouteProp>();
   const { user, onLogout } = route.params;
@@ -112,7 +136,7 @@ const UniversitySettings: React.FC = () => {
     );
   };
 
-  const settingsSections = [
+  const settingsSections: { title: string; items: UniversitySettingsItem[] }[] = [
     {
       title: 'General Settings',
       items: [
@@ -234,7 +258,7 @@ const UniversitySettings: React.FC = () => {
             <TouchableOpacity
               key={itemIndex}
               style={styles.settingItem}
-              onPress={item.onPress}
+              onPress={item.isSwitch ? undefined : item.onPress}
               disabled={item.isSwitch}
             >
               <View style={styles.settingIcon}>

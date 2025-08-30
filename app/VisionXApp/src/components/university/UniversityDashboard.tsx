@@ -186,7 +186,7 @@ const UniversityDashboard: React.FC = () => {
             <View style={styles.credentialHeader}>
               <View style={styles.credentialInfo}>
                 <Text style={styles.credentialTitle}>{credential.title}</Text>
-                <Text style={styles.studentInfo}>
+                <Text style={styles.credentialStudentInfo}>
                   {credential.studentName} - {credential.studentId}
                 </Text>
                 <Text style={styles.credentialDate}>
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: 4,
   },
-  studentInfo: {
+  credentialStudentInfo: {
     fontSize: 14,
     color: '#94a3b8',
     marginBottom: 4,
