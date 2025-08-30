@@ -1,16 +1,6 @@
 import { apiService } from './api';
 import { Credential, CreateCredentialData, NewCredential, VerificationResult } from '../types';
 
-// Credential service types
-export interface CreateCredentialData {
-  title: string;
-  type: 'bachelor' | 'master' | 'certificate' | 'diploma';
-  institution: string;
-  dateIssued: string;
-  studentId?: string;
-  studentName?: string;
-}
-
 export interface CredentialFilters {
   type?: string;
   status?: string;

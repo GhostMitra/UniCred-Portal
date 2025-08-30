@@ -16,6 +16,28 @@ import { User } from '../../types';
 
 type RecruiterSettingsRouteProp = RouteProp<{ Settings: { user: User; onLogout: () => void } }, 'Settings'>;
 
+interface BaseSettingsItem {
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+interface ButtonSettingsItem extends BaseSettingsItem {
+  onPress: () => void;
+  showArrow: boolean;
+  isSwitch?: never;
+  switchValue?: never;
+}
+
+interface SwitchSettingsItem extends BaseSettingsItem {
+  onPress: () => void;
+  showArrow: false;
+  isSwitch: true;
+  switchValue: boolean;
+}
+
+type SettingsItem = ButtonSettingsItem | SwitchSettingsItem;
+
 const RecruiterSettings: React.FC = () => {
   const route = useRoute<RecruiterSettingsRouteProp>();
   const { user, onLogout } = route.params;
@@ -121,7 +143,7 @@ const RecruiterSettings: React.FC = () => {
     }
   };
 
-  const settingsSections = [
+  const settingsSections: { title: string; items: SettingsItem[] }[] = [
     {
       title: 'Account',
       items: [
@@ -246,7 +268,7 @@ const RecruiterSettings: React.FC = () => {
             <TouchableOpacity
               key={itemIndex}
               style={styles.settingsItem}
-              onPress={item.onPress}
+              onPress={item.isSwitch ? undefined : item.onPress}
               disabled={item.isSwitch}
             >
               <View style={styles.itemLeft}>

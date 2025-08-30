@@ -66,7 +66,7 @@ const StudentDirectory: React.FC = () => {
     try {
       setIsLoading(true);
       const allStudents = await studentService.getAllStudents();
-      setStudents(allStudents);
+      setStudents(allStudents as Student[]);
     } catch (error) {
       console.error('Error loading students:', error);
       Alert.alert(
