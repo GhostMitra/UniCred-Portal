@@ -101,11 +101,28 @@ export async function verifyCredentialByHash(vcHash: string) {
 }
 
 export async function searchCredentials(query: string) {
-  // Try different search methods
+  // Only allow exact matches for credential ID or hash - no partial matching
+  const trimmedQuery = query.trim();
   
-  // 1. Search by credential ID
+  // Validate query format - should be either credential ID or hash
+  // Credential IDs typically start with "CRED_" and are long (e.g., CRED_BACHELOR_CS_STU001)
+  // Hashes are typically longer alphanumeric strings (e.g., hash_bachelor_cs_001)
+  if (trimmedQuery.length < 15) {
+    return { exists: false, method: 'invalid_query' as const, error: 'Query too short - please provide full credential ID or hash (minimum 15 characters)' };
+  }
+  
+  // Additional validation - check if it looks like a valid credential ID or hash
+  const isValidCredentialId = /^CRED_[A-Z_]+_STU\d+$/.test(trimmedQuery);
+  const isValidHash = /^hash_[a-z_]+_\d+$/.test(trimmedQuery);
+  const isValidStudentId = /^STU\d+$/.test(trimmedQuery);
+  
+  if (!isValidCredentialId && !isValidHash && !isValidStudentId) {
+    return { exists: false, method: 'invalid_format' as const, error: 'Invalid format - please provide a valid credential ID (CRED_*), hash (hash_*), or student ID (STU*)' };
+  }
+  
+  // 1. Search by exact credential ID
   let cred = await prisma.credential.findUnique({ 
-    where: { id: query },
+    where: { id: trimmedQuery },
     include: { student: true }
   });
   
@@ -117,9 +134,9 @@ export async function searchCredentials(query: string) {
     };
   }
   
-  // 2. Search by vcHash
+  // 2. Search by exact vcHash
   cred = await prisma.credential.findUnique({ 
-    where: { vcHash: query },
+    where: { vcHash: trimmedQuery },
     include: { student: true }
   });
   
@@ -131,32 +148,9 @@ export async function searchCredentials(query: string) {
     };
   }
   
-  // 3. Search by student name (partial match)
-  const credsWithStudents = await prisma.credential.findMany({
-    include: { student: true },
-    where: {
-      student: {
-        name: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      }
-    }
-  });
-  
-  if (credsWithStudents.length > 0) {
-    const firstCred = credsWithStudents[0];
-    return { 
-      exists: true, 
-      method: 'student_name' as const, 
-      credential: { ...firstCred, studentName: firstCred.student?.name || 'Unknown Student' },
-      additionalResults: credsWithStudents.length - 1
-    };
-  }
-  
-  // 4. Search by student ID
+  // 3. Only search by exact student ID (no partial matching)
   cred = await prisma.credential.findFirst({
-    where: { studentId: query },
+    where: { studentId: trimmedQuery },
     include: { student: true }
   });
   
@@ -168,7 +162,7 @@ export async function searchCredentials(query: string) {
     };
   }
   
-  return { exists: false, method: 'unknown' as const };
+  return { exists: false, method: 'not_found' as const, error: 'No credential found with the provided ID or hash' };
 }
 
 export async function anchorCredential(credentialId: string, _chainInfo: { network: string }) {
