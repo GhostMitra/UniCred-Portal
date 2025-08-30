@@ -14,6 +14,7 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
   const [verificationResult, setVerificationResult] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -66,7 +67,8 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
         ...prev,
         credential: { ...prev.credential, recruiterApproved: true },
       }));
-      alert('Credential visibility approved for student.');
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 5000);
     } catch (e) {
       alert('Failed to approve credential');
     } finally {
@@ -83,54 +85,77 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 left-4 sm:left-auto sm:right-4 sm:w-96 z-50">
+          <div className="bg-green-600/90 backdrop-blur-md border border-green-500/30 rounded-lg p-4 shadow-lg">
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-200 mr-3 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Success!</p>
+                <p className="text-xs text-green-200 mt-1">Credential visibility approved for student.</p>
+              </div>
+              <button
+                onClick={() => setShowSuccessMessage(false)}
+                className="ml-3 text-green-200 hover:text-white transition-colors"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Navigation */}
-      <nav className="flex space-x-1 bg-white/10 p-1 rounded-lg w-fit">
-        <Link to="/recruiter/dashboard" className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition">
+      <nav className="flex flex-wrap gap-1 bg-white/10 p-1 rounded-lg w-fit">
+        <Link to="/recruiter/dashboard" className="px-3 sm:px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition text-sm sm:text-base">
           Dashboard
         </Link>
-        <Link to="/recruiter/verification" className="px-4 py-2 bg-white/20 text-white rounded-md font-medium">
+        <Link to="/recruiter/verification" className="px-3 sm:px-4 py-2 bg-white/20 text-white rounded-md font-medium text-sm sm:text-base">
           Verification
         </Link>
-        <Link to="/recruiter/settings" className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition">
+        <Link to="/recruiter/settings" className="px-3 sm:px-4 py-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-md transition text-sm sm:text-base">
           Settings
         </Link>
       </nav>
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Instant Credential Verification</h1>
-        <p className="text-slate-300">Verify educational credentials instantly using blockchain technology</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Instant Credential Verification</h1>
+        <p className="text-sm sm:text-base text-slate-300">Verify educational credentials instantly using blockchain technology</p>
       </div>
 
       {/* Verification Mode Toggle */}
-      <div className="flex space-x-1 bg-white/10 p-1 rounded-lg w-fit">
+      <div className="flex flex-wrap gap-1 bg-white/10 p-1 rounded-lg w-fit">
         <button
           onClick={() => setVerificationMode('search')}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`px-3 sm:px-4 py-2 rounded-md font-medium transition text-sm sm:text-base ${
             verificationMode === 'search' 
               ? 'bg-white/20 text-white' 
               : 'text-slate-300 hover:text-white hover:bg-white/10'
           }`}
         >
-          Search Verification
+          <span className="hidden sm:inline">Search Verification</span>
+          <span className="sm:hidden">Search</span>
         </button>
         <button
           onClick={() => setVerificationMode('upload')}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`px-3 sm:px-4 py-2 rounded-md font-medium transition text-sm sm:text-base ${
             verificationMode === 'upload' 
               ? 'bg-white/20 text-white' 
               : 'text-slate-300 hover:text-white hover:bg-white/10'
           }`}
         >
-          Upload Document
+          <span className="hidden sm:inline">Upload Document</span>
+          <span className="sm:hidden">Upload</span>
         </button>
       </div>
 
       {/* Verification Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* Search/Upload Panel */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/20">
           <h2 className="text-xl font-semibold text-white mb-6">
             {verificationMode === 'search' ? 'Search Credential' : 'Upload Document'}
           </h2>
@@ -198,8 +223,8 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
         </div>
 
         {/* Verification Results */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <h2 className="text-xl font-semibold text-white mb-6">Verification Results</h2>
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/20">
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">Verification Results</h2>
           
           {!verificationResult && !isVerifying && (
             <div className="text-center py-12">
@@ -218,78 +243,98 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
           )}
 
           {verificationResult && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Status */}
-              <div className="flex items-center justify-center mb-6">
-                <div className={`p-4 rounded-full ${
+              <div className="flex items-center justify-center mb-4 sm:mb-6">
+                <div className={`p-3 sm:p-4 rounded-full ${
                   verificationResult.verification.status === 'authentic' 
                     ? 'bg-green-500/20' 
                     : 'bg-red-500/20'
                 }`}>
                   {verificationResult.verification.status === 'authentic' ? 
-                    <CheckCircle className="w-8 h-8 text-green-400" /> :
-                    <XCircle className="w-8 h-8 text-red-400" />
+                    <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-400" /> :
+                    <XCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-400" />
                   }
                 </div>
               </div>
 
-              <div className={`text-center p-4 rounded-lg ${
+              <div className={`text-center p-3 sm:p-4 rounded-lg ${
                 verificationResult.verification.status === 'authentic' 
                   ? 'bg-green-500/20 border border-green-500/30' 
                   : 'bg-red-500/20 border border-red-500/30'
               }`}>
-                <h3 className={`text-lg font-semibold ${
+                <h3 className={`text-base sm:text-lg font-semibold ${
                   verificationResult.verification.status === 'authentic' ? 'text-green-300' : 'text-red-300'
                 }`}>
                   {verificationResult.verification.status === 'authentic' ? 'Credential Verified' : 'Verification Failed'}
                 </h3>
-                <p className="text-sm mt-1 text-slate-300">
+                <p className="text-xs sm:text-sm mt-1 text-slate-300">
                   Confidence: {verificationResult.verification.confidence}%
                 </p>
               </div>
 
               {/* Credential Details */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-white">Credential Details</h4>
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Student:</span>
-                    <span className="text-white">{verificationResult.candidate.name}</span>
+              <div className="space-y-3 sm:space-y-4">
+                <h4 className="text-sm sm:text-base font-semibold text-white">Credential Details</h4>
+                <div className="bg-slate-800/30 rounded-lg p-3 sm:p-4 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-slate-400 text-xs sm:text-sm">Student:</span>
+                    <span className="text-white text-sm sm:text-base font-medium sm:text-right">{verificationResult.candidate.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Credential:</span>
-                    <span className="text-white">{verificationResult.credential.title}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-slate-400 text-xs sm:text-sm">Credential:</span>
+                    <span className="text-white text-sm sm:text-base font-medium sm:text-right">{verificationResult.credential.title}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Institution:</span>
-                    <span className="text-white">{verificationResult.credential.institution}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-slate-400 text-xs sm:text-sm">Institution:</span>
+                    <span className="text-white text-sm sm:text-base font-medium sm:text-right">{verificationResult.credential.institution}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Date Issued:</span>
-                    <span className="text-white">{verificationResult.credential.dateIssued}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-slate-400 text-xs sm:text-sm">Date Issued:</span>
+                    <span className="text-white text-sm sm:text-base font-medium sm:text-right">{verificationResult.credential.dateIssued}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">GPA:</span>
-                    <span className="text-white">{verificationResult.credential.gpa}</span>
-                  </div>
+                  {verificationResult.credential.gpa && (
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                      <span className="text-slate-400 text-xs sm:text-sm">GPA:</span>
+                      <span className="text-white text-sm sm:text-base font-medium sm:text-right">{verificationResult.credential.gpa}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex space-x-2">
-                  <button className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center">
+                <div className="space-y-2 sm:space-y-0 sm:flex sm:space-x-2">
+                  <button className="w-full sm:flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-3 py-2.5 sm:py-2 rounded-lg transition duration-200 flex items-center justify-center text-sm">
                     <Download className="w-4 h-4 mr-2" />
-                    Download Report
+                    <span className="hidden sm:inline">Download Report</span>
+                    <span className="sm:hidden">Download</span>
                   </button>
-                  <button className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center">
+                  <button className="w-full sm:flex-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-3 py-2.5 sm:py-2 rounded-lg transition duration-200 flex items-center justify-center text-sm">
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Blockchain View
+                    <span className="hidden sm:inline">Blockchain View</span>
+                    <span className="sm:hidden">Blockchain</span>
                   </button>
                   <button
                     onClick={handleApprove}
                     disabled={isApproving || verificationResult?.credential?.recruiterApproved}
-                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center"
+                    className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-2.5 sm:py-2 rounded-lg transition duration-200 flex items-center justify-center text-sm font-medium"
                   >
-                    {verificationResult?.credential?.recruiterApproved ? 'Approved' : (isApproving ? 'Approving...' : 'Approve Visibility')}
+                    {verificationResult?.credential?.recruiterApproved ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <span>Approved</span>
+                      </>
+                    ) : isApproving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span>Approving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">Approve Visibility</span>
+                        <span className="sm:hidden">Approve</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
