@@ -20,7 +20,8 @@ type CredentialManagementRouteProp = RouteProp<{ Credentials: { user: User } }, 
 
 const CredentialManagement: React.FC = () => {
   const route = useRoute<CredentialManagementRouteProp>();
-  const { user } = route.params;
+  const { user } = route.params ?? { user: null };
+
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -93,12 +94,15 @@ const CredentialManagement: React.FC = () => {
   };
 
   const filteredCredentials = credentials.filter((credential) => {
-    const matchesSearch = credential.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         credential.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         credential.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      (credential.studentName ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (credential.studentId ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (credential.title ?? '').toLowerCase().includes(searchQuery.toLowerCase());
+  
     const matchesType = filterType === 'all' || credential.type === filterType;
     return matchesSearch && matchesType;
   });
+  
 
   const handleIssueCredential = () => {
     if (!newCredential.title || !newCredential.studentId || !newCredential.studentName || !newCredential.graduationDate) {

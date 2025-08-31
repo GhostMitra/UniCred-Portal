@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://unicred-portal-apidebarghaya.in';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://unicred-portal-api.debarghaya.in';
 
 async function http<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {

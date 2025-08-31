@@ -270,7 +270,8 @@ const StudentDirectory: React.FC = () => {
               <View style={styles.studentDetails}>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>GPA:</Text>
-                  <Text style={styles.detailValue}>{student.gpa.toFixed(1)}</Text>
+                  <Text style={styles.detailValue}>{(student.gpa ?? 0).toFixed(1)}</Text>
+
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Credits:</Text>
@@ -541,7 +542,8 @@ const StudentDirectory: React.FC = () => {
                   )}
                   <View style={styles.detailItem}>
                     <Text style={styles.detailItemLabel}>GPA:</Text>
-                    <Text style={styles.detailItemValue}>{selectedStudent.gpa.toFixed(2)}</Text>
+                    <Text style={styles.detailValue}>{(selectedStudent.gpa ?? 0).toFixed(1)}</Text>
+
                   </View>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailItemLabel}>Credits Completed:</Text>

@@ -364,42 +364,46 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
               </div>
 
               {/* Credential Details */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-white">Credential Details</h4>
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Student:</span>
-                    <span className="text-white">{verificationResult.candidate.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Credential:</span>
-                    <span className="text-white">{verificationResult.credential.title}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Institution:</span>
-                    <span className="text-white">{verificationResult.credential.institution}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Date Issued:</span>
-                    <span className="text-white">{verificationResult.credential.dateIssued}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Status:</span>
-                    <span className="text-white capitalize">{verificationResult.credential.status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Recruiter Approved:</span>
-                    <span className={`${verificationResult.credential.recruiterApproved ? 'text-green-400' : 'text-red-400'}`}>
-                      {verificationResult.credential.recruiterApproved ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Student Accepted:</span>
-                    <span className={`${verificationResult.credential.studentAccepted ? 'text-green-400' : 'text-red-400'}`}>
-                      {verificationResult.credential.studentAccepted ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                </div>
+{verificationResult.found && verificationResult.candidate && verificationResult.credential && (
+  <div className="space-y-4">
+    <h4 className="font-semibold text-white">Credential Details</h4>
+    <div className="bg-slate-800/30 rounded-lg p-4 space-y-3">
+      <div className="flex justify-between">
+        <span className="text-slate-400">Student:</span>
+        <span className="text-white">{verificationResult.candidate?.name || 'N/A'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Credential:</span>
+        <span className="text-white">{verificationResult.credential?.title || 'N/A'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Institution:</span>
+        <span className="text-white">{verificationResult.credential?.institution || 'N/A'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Date Issued:</span>
+        <span className="text-white">{verificationResult.credential?.dateIssued || 'N/A'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Status:</span>
+        <span className="text-white capitalize">{verificationResult.credential?.status || 'N/A'}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Recruiter Approved:</span>
+        <span className={verificationResult.credential?.recruiterApproved ? 'text-green-400' : 'text-red-400'}>
+          {verificationResult.credential?.recruiterApproved ? 'Yes' : 'No'}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-slate-400">Student Accepted:</span>
+        <span className={verificationResult.credential?.studentAccepted ? 'text-green-400' : 'text-red-400'}>
+          {verificationResult.credential?.studentAccepted ? 'Yes' : 'No'}
+        </span>
+      </div>
+    </div>
+  </div>
+)}
+
 
                 {/* Actions */}
                 <div className="flex space-x-2">
@@ -422,7 +426,6 @@ const CredentialVerification: React.FC<CredentialVerificationProps> = ({ user })
                   )}
                 </div>
               </div>
-            </div>
           )}
         </div>
       </div>
