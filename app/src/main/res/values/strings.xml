@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">YtDlp Android</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="battery_configuration">Battery configuration</string>
+    <string name="battery_configuration_desc">Ignore battery optimization for this app to download in the background</string>
+    
+    <!-- Settings Categories -->
+    <string name="general">General</string>
+    <string name="general_desc">Yt-dlp version, notification, playlist</string>
+    
+    <string name="download_directory">Download directory</string>
+    <string name="download_directory_desc">Select where to store videos and audio files</string>
+    
+    <string name="format">Format</string>
+    <string name="format_desc">File format, video quality, subtitles</string>
+    
+    <string name="network">Network</string>
+    <string name="network_desc">Rate limit, downloader, cookies</string>
+    
+    <string name="custom_command">Custom command</string>
+    <string name="custom_command_desc">Run yt-dlp command with custom template</string>
+    
+    <string name="look_and_feel">Look &amp; feel</string>
+    <string name="look_and_feel_desc">Dark theme, dynamic color, languages</string>
+    
+    <string name="interface_interaction">Interface &amp; interaction</string>
+    <string name="interface_interaction_desc">Configure before download</string>
+    
+    <string name="about">About</string>
+    <string name="about_desc">Version, feedback, auto update</string>
+</resources>
