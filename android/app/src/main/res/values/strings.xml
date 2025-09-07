@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">UniCred</string>
+    <string name="login_title">UniCred</string>
+    <string name="login_subtitle">Student Credential Platform</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="signup_button">Create Account</string>
+    <string name="access_type_label">Access Type:</string>
+    <string name="student">Student</string>
+    <string name="recruiter">Recruiter</string>
+    <string name="university">University</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="credentials">My Credentials</string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="error_fill_all_fields">Please fill in all fields</string>
+    <string name="error_login_failed">Login Failed</string>
+    <string name="error_occurred">An error occurred</string>
+</resources>
